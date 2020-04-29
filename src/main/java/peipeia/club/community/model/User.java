@@ -1,7 +1,7 @@
 package peipeia.club.community.model;
 
+import lombok.Data;
 import org.springframework.stereotype.Component;
-
 @Component
 public class User {
     private Integer id;
@@ -10,6 +10,8 @@ public class User {
     private  String token;
     private  Long  gmt_create;
     private  Long  gmt_modified;
+    private  String bio;
+    private  String avatar_url;
 
     public Integer getId() {
         return id;
@@ -57,5 +59,35 @@ public class User {
 
     public void setGmt_modified(Long gmt_modified) {
         this.gmt_modified = gmt_modified;
+    }
+
+    public String getBio() {
+        return bio;
+    }
+
+    public void setBio(String bio) {
+        this.bio = bio;
+    }
+
+    public String getAvatar_url() {
+        return avatar_url;
+    }
+
+    public void setAvatar_url(String avatar_url) {
+        this.avatar_url = avatar_url;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", account_id='" + account_id + '\'' +
+                ", token='" + token + '\'' +
+                ", gmt_create=" + gmt_create +
+                ", gmt_modified=" + gmt_modified +
+                ", bio='" + bio + '\'' +
+                ", avatar_url='" + avatar_url + '\'' +
+                '}';
     }
 }

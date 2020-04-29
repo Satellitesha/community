@@ -27,6 +27,7 @@ public class GithubProvider {
             // 返回的是下面这样一个字符串，所以先把它给转换成json对象，然后获取它里面对应的token
             // {"access_token":"783e1f8ec832e301ee9c831e201396a8","token_type":"bearer","expires_in":86400,"refresh_token":"5940b861e2bab8e2d2ffba74ebf320ede12af85245c4011c528e12a614cecb29","scope":"user_info","created_at":1585487419}
             JSONObject obj=JSONObject.parseObject(str);
+            System.out.println("这是"+obj);
             return obj.get("access_token").toString();
         } catch (Exception e) {
             e.printStackTrace();

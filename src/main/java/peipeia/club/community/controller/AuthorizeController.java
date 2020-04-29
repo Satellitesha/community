@@ -11,6 +11,7 @@ import peipeia.club.community.mapper.UserMapper;
 import peipeia.club.community.model.User;
 import peipeia.club.community.provider.GithubProvider;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.UUID;
@@ -46,15 +47,17 @@ public class AuthorizeController {
         accessTokenDTO.setRedirect_uri(redirectUri);
         String accessToken = githubProvider.getAccessToken(accessTokenDTO);
         GithubUser githubUser= githubProvider.getUser(accessToken);
-        if (githubUser!=null){
-            user.setToken(UUID.randomUUID().toString());
+        if (githubUser!=null && githubUser.getId()!=null){
+            String token = UUID.randomUUID().toString();
+            user.setToken(token);
             user.setName(githubUser.getName());
             user.setAccount_id(String.valueOf(githubUser.getId()));
             user.setGmt_create(System.currentTimeMillis());
             user.setGmt_modified(user.getGmt_create());
+            user.setAvatar_url(githubUser.getAvatar_url());
             userMapper.insertUser(user);
-            //登录成功，写cookie和session
-            request.getSession().setAttribute("user",githubUser);
+            //用户登录成功后获取到唯一token，将token存入cookie
+            response.addCookie(new Cookie("token",token));
             return "redirect:/";
         }else {
             //登录重新登录
