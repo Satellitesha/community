@@ -1,36 +1,28 @@
 package peipeia.club.community.controller;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import peipeia.club.community.mapper.UserMapper;
+import org.springframework.web.bind.annotation.RequestParam;
+import peipeia.club.community.dto.PageDTO;
 import peipeia.club.community.model.User;
-
-import javax.servlet.http.Cookie;
+import peipeia.club.community.service.QuestionService;
 import javax.servlet.http.HttpServletRequest;
 
 @Controller
 public class ProfileController {
     @Autowired
-    UserMapper userMapper;
+    QuestionService questionService;
     @GetMapping("/profile/{action}")
     public  String profile(@PathVariable(name = "action")String action,
                            Model model,
-                           HttpServletRequest request){
-        Cookie[] cookies = request.getCookies();
-        if (cookies!=null){
-            for (Cookie cookie : cookies) {
-                if (cookie.getName().equals("token")){
-                    String token = cookie.getValue();
-                    User user=  userMapper.findByToken(token);
-                    if (user!=null){
-                        request.getSession().setAttribute("user",user);
-                    }
-                    break;
-                }
-            }
+                           HttpServletRequest request,
+                           @RequestParam(name="page",defaultValue = "1") Integer page,
+                           @RequestParam(name="size",defaultValue = "5") Integer size){
+        User user = (User) request.getSession().getAttribute("user");
+        if (user==null){
+            return "redirect:/";
         }
         if ("questions".equals(action)){
             model.addAttribute("section","questions");
@@ -39,6 +31,8 @@ public class ProfileController {
             model.addAttribute("section","replies");
             model.addAttribute("sectionName","最新回复");
         }
+        PageDTO pageDTO = questionService.findQuestionById(user.getId(), page, size);
+        model.addAttribute("pagination",pageDTO);
         return "profile";
     }
 }
