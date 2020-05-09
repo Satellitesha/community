@@ -41,7 +41,6 @@ public class PageDTO {
         } else {
             showPrevious = true;
         }
-
         // 是否展示下一页
         if (page == totalPage) {
             showNextPage = false;

@@ -1,13 +1,19 @@
 package peipeia.club.community.service;
 
+import org.apache.ibatis.session.RowBounds;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import peipeia.club.community.dto.PageDTO;
 import peipeia.club.community.dto.QuestionDTO;
+import peipeia.club.community.exception.CustomException;
+import peipeia.club.community.exception.CustomizeErrorCode;
+import peipeia.club.community.exception.CustomizeErrorCodeImpl;
+import peipeia.club.community.mapper.QuestionExtMapper;
 import peipeia.club.community.mapper.QuestionMapper;
 import peipeia.club.community.mapper.UserMapper;
 import peipeia.club.community.model.Question;
+import peipeia.club.community.model.QuestionExample;
 import peipeia.club.community.model.User;
 
 import java.util.ArrayList;
@@ -19,10 +25,12 @@ public class QuestionService {
     QuestionMapper questionMapper;
     @Autowired
     UserMapper userMapper;
+    @Autowired
+    QuestionExtMapper questionExtMapper;
     public PageDTO findQuestion(Integer page, Integer size) {
         PageDTO pageDTO = new PageDTO();
         Integer totalPage;
-        Integer totalCount = questionMapper.count();
+       Integer totalCount = (int)questionMapper.countByExample(new QuestionExample());
 
         if(totalCount % size==0){
             totalPage=totalCount / size;
@@ -39,10 +47,10 @@ public class QuestionService {
         //5*(i-1)
         //把questions上的所有属性快速拷贝到questionDTO上
         Integer offset=size * (page-1);
-        List<Question> questions = questionMapper.findQuestion(offset,size);
+        List<Question> questions = questionMapper.selectByExampleWithRowbounds(new QuestionExample(), new RowBounds(offset, size));
         List<QuestionDTO> questionDTOList=new ArrayList<>();
         for (Question question : questions) {
-          User user=  userMapper.findById(question.getCreator());
+          User user=  userMapper.selectByPrimaryKey(question.getCreator());
           QuestionDTO questionDTO = new QuestionDTO();
           BeanUtils.copyProperties(question, questionDTO);
           questionDTO.setUser(user);
@@ -52,11 +60,14 @@ public class QuestionService {
         return pageDTO;
     }
 
-    public PageDTO findQuestionById(Integer userId, Integer page, Integer size) {
+    public PageDTO findQuestionById(Long userId, Integer page, Integer size) {
 
         PageDTO pageDTO = new PageDTO();
         Integer totalPage;
-        Integer totalCount = questionMapper.countById(userId);
+        QuestionExample example = new QuestionExample();
+        example.createCriteria()
+                .andCreatorEqualTo(userId);
+        Integer totalCount = (int)questionMapper.countByExample(example);
         if(totalCount % size==0){
             totalPage=totalCount / size;
         }else {
@@ -71,10 +82,12 @@ public class QuestionService {
         pageDTO.setPagination(totalPage,page);
         //5*(i-1)
         Integer offset=size * (page-1);
-        List<Question> questions = questionMapper.findQuestionById(userId,offset,size);
+        QuestionExample example1 = new QuestionExample();
+        example1.createCriteria().andCreatorEqualTo(userId);
+        List<Question> questions = questionMapper.selectByExampleWithRowbounds(example1, new RowBounds(offset, size));
         List<QuestionDTO> questionDTOList=new ArrayList<>();
         for (Question question : questions) {
-            User user=  userMapper.findById(question.getCreator());
+            User user=  userMapper.selectByPrimaryKey(question.getCreator());
             QuestionDTO questionDTO = new QuestionDTO();
             //把questions上的所有属性快速拷贝到questionDTO上
             BeanUtils.copyProperties(question, questionDTO);
@@ -85,13 +98,46 @@ public class QuestionService {
         return pageDTO;
     }
 
-    public QuestionDTO getById(Integer id) {
-        Question question= questionMapper.findById(id);
+    public QuestionDTO getById(Long id) {
+        Question question= questionMapper.selectByPrimaryKey(id);
+        if (question==null){
+            throw  new CustomException(CustomizeErrorCodeImpl.QUESTION_NOT_FOUND);
+        }
         QuestionDTO questionDTO = new QuestionDTO();
         BeanUtils.copyProperties(question, questionDTO);
-        User user=  userMapper.findById(question.getCreator());
+        User user=  userMapper.selectByPrimaryKey(question.getCreator());
         questionDTO.setUser(user);
         return questionDTO;
+    }
+
+    public void creatOrUpdate(Question question) {
+        if (question.getId()==null){
+            //创建
+            question.setGmtCreate(System.currentTimeMillis());
+            question.setGmtModified(question.getGmtCreate());
+            questionMapper.insertSelective(question);
+        }else {
+            //更新
+            Question updateQuestion = new Question();
+            updateQuestion.setGmtModified(System.currentTimeMillis());
+            updateQuestion.setTitle(question.getTitle());
+            updateQuestion.setDescription(question.getDescription());
+            updateQuestion.setTag(question.getTag());
+            QuestionExample example = new QuestionExample();
+            example.createCriteria()
+                    .andIdEqualTo(question.getId());
+            int i = questionMapper.updateByExampleSelective(updateQuestion, example);
+            if (i!=1){
+                throw  new CustomException(CustomizeErrorCodeImpl.QUESTION_NOT_FOUND);
+            }
+        }
+    }
+
+    public void inView(Long id) {
+        Question question = new Question();
+        question.setId(id);
+        question.setViewCount(1);
+        questionExtMapper.inView(question);
     }
 }
 
