@@ -1,5 +1,6 @@
 package peipeia.club.community.service;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.RowBounds;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,7 +8,6 @@ import org.springframework.stereotype.Service;
 import peipeia.club.community.dto.PageDTO;
 import peipeia.club.community.dto.QuestionDTO;
 import peipeia.club.community.exception.CustomException;
-import peipeia.club.community.exception.CustomizeErrorCode;
 import peipeia.club.community.exception.CustomizeErrorCodeImpl;
 import peipeia.club.community.mapper.QuestionExtMapper;
 import peipeia.club.community.mapper.QuestionMapper;
@@ -17,7 +17,9 @@ import peipeia.club.community.model.QuestionExample;
 import peipeia.club.community.model.User;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class QuestionService {
@@ -47,7 +49,9 @@ public class QuestionService {
         //5*(i-1)
         //把questions上的所有属性快速拷贝到questionDTO上
         Integer offset=size * (page-1);
-        List<Question> questions = questionMapper.selectByExampleWithRowbounds(new QuestionExample(), new RowBounds(offset, size));
+        QuestionExample questionExample = new QuestionExample();
+        questionExample.setOrderByClause("gmt_create desc");
+        List<Question> questions = questionMapper.selectByExampleWithRowbounds(questionExample, new RowBounds(offset, size));
         List<QuestionDTO> questionDTOList=new ArrayList<>();
         for (Question question : questions) {
           User user=  userMapper.selectByPrimaryKey(question.getCreator());
@@ -56,7 +60,7 @@ public class QuestionService {
           questionDTO.setUser(user);
           questionDTOList.add(questionDTO);
         }
-       pageDTO.setQuestion(questionDTOList);
+       pageDTO.setData(questionDTOList);
         return pageDTO;
     }
 
@@ -94,18 +98,18 @@ public class QuestionService {
             questionDTO.setUser(user);
             questionDTOList.add(questionDTO);
         }
-        pageDTO.setQuestion(questionDTOList);
+        pageDTO.setData(questionDTOList);
         return pageDTO;
     }
 
     public QuestionDTO getById(Long id) {
-        Question question= questionMapper.selectByPrimaryKey(id);
-        if (question==null){
-            throw  new CustomException(CustomizeErrorCodeImpl.QUESTION_NOT_FOUND);
+        Question question = questionMapper.selectByPrimaryKey(id);
+        if (question == null) {
+            throw new CustomException(CustomizeErrorCodeImpl.QUESTION_NOT_FOUND);
         }
         QuestionDTO questionDTO = new QuestionDTO();
         BeanUtils.copyProperties(question, questionDTO);
-        User user=  userMapper.selectByPrimaryKey(question.getCreator());
+        User user = userMapper.selectByPrimaryKey(question.getCreator());
         questionDTO.setUser(user);
         return questionDTO;
     }
@@ -138,6 +142,28 @@ public class QuestionService {
         question.setId(id);
         question.setViewCount(1);
         questionExtMapper.inView(question);
+    }
+//    标签
+    public List<QuestionDTO> selectByRelated(QuestionDTO queryDTO) {
+        //判断tag是否为空
+        if (StringUtils.isBlank(queryDTO.getTag())) {
+            return  new ArrayList<>();
+        }
+        //将查到的tag以逗号分开
+        String[] tags = StringUtils.split(queryDTO.getTag(), ",");
+        //吧tag以tag1|tag2|tag3
+        String regexpTag = Arrays.stream(tags).collect(Collectors.joining("|"));
+        Question question=new Question();
+        question.setId(queryDTO.getId());
+        question.setTag(regexpTag);
+        List<Question> questions = questionExtMapper.selectByRelated(question);
+        List<QuestionDTO> questionDTOS = questions.stream().map(q -> {
+            QuestionDTO questionDTO = new QuestionDTO();
+            BeanUtils.copyProperties(q, questionDTO);
+            return questionDTO;
+        }).collect(Collectors.toList());
+
+        return questionDTOS;
     }
 }
 

@@ -17,7 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.UUID;
 
 /**
- *
+ *第三方码云登录
  */
 
 
@@ -37,6 +37,7 @@ public class AuthorizeController {
     public String callback(@RequestParam(value="code",required = false) String code,
                            HttpServletRequest request,
                            HttpServletResponse response){
+        //把从前端获取到的code和个人的clientId、clientSecret、redirectUri储存到accesstoken中
         AccessTokenDTO accessTokenDTO = new AccessTokenDTO();
         accessTokenDTO.setClient_id(clientId);
         accessTokenDTO.setClient_secret(clientSecret);
@@ -44,6 +45,7 @@ public class AuthorizeController {
         accessTokenDTO.setRedirect_uri(redirectUri);
         String accessToken = githubProvider.getAccessToken(accessTokenDTO);
         GithubUser githubUser= githubProvider.getUser(accessToken);
+        //如果githubUser不为空吧数据存储到User对象中
         if (githubUser!=null && githubUser.getId()!=null){
             User user=new User();
             String token = UUID.randomUUID().toString();

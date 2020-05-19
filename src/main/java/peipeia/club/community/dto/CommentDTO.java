@@ -1,31 +1,26 @@
 package peipeia.club.community.dto;
 
+import lombok.Data;
+import peipeia.club.community.model.User;
+@Data
 public class CommentDTO {
-    private Long parentId;
-    private  String content;
-    private  Integer type;
+        private Long id;
 
-    public Long getParentId() {
-        return parentId;
-    }
+        private Long parentId;
 
-    public void setParentId(Long parentId) {
-        this.parentId = parentId;
-    }
+        private Integer type;
 
-    public String getContent() {
-        return content;
-    }
+        private String content;
 
-    public void setContent(String content) {
-        this.content = content;
-    }
+        private Long commentator;
 
-    public Integer getType() {
-        return type;
-    }
+        private Long gmtCreate;
 
-    public void setType(Integer type) {
-        this.type = type;
-    }
+        private Long gmtModified;
+
+        private Integer likeCount;
+        private User user;
+        private  Integer commentCount;
+
+
 }

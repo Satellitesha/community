@@ -20,33 +20,34 @@ public class CustomizeExceptionHandler {
     @ExceptionHandler(Exception.class)
     Object handle(Throwable e, Model model, HttpServletRequest request, HttpServletResponse response) {
         String contentType = request.getContentType();
-        ResultDTO resultDTO=null;
-        if("application/json".equals(contentType)){
+        ResultDTO resultDTO = null;
+        if ("application/json".equals(contentType)) {
             //返回json
-            if (e instanceof CustomException){
-                resultDTO= ResultDTO.errorOf((CustomException)e);
-            }else {
+            if (e instanceof CustomException) {
+                resultDTO = ResultDTO.errorOf((CustomException) e);
+            } else {
                 resultDTO = (ResultDTO) ResultDTO.errorOf(CustomizeErrorCodeImpl.SYS_ERROR);
             }
             try {
                 response.setContentType("application/json");
                 response.setStatus(200);
                 response.setCharacterEncoding("utf-8");
-                PrintWriter writer=response.getWriter();
+                PrintWriter writer = response.getWriter();
                 writer.write(JSON.toJSONString(resultDTO));
                 writer.close();
-            }catch (IOException ioe){
+            } catch (IOException ioe) {
 
             }
-
-        }else {
+            return  null;
+        } else {
             //错误页面跳转
+
+            if (e instanceof CustomException) {
+                model.addAttribute("message", e.getMessage());
+            } else {
+                model.addAttribute("message", CustomizeErrorCodeImpl.SYS_ERROR);
+            }
+            return new ModelAndView("error");
         }
-        if (e instanceof CustomException){
-            model.addAttribute("message",e.getMessage());
-        }else {
-            model.addAttribute("message",CustomizeErrorCodeImpl.SYS_ERROR);
-        }
-        return  new ModelAndView("error");
     }
 }

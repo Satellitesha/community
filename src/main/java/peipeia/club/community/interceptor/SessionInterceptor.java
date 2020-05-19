@@ -8,6 +8,7 @@ import org.springframework.web.servlet.ModelAndView;
 import peipeia.club.community.mapper.UserMapper;
 import peipeia.club.community.model.User;
 import peipeia.club.community.model.UserExample;
+import peipeia.club.community.service.NotificationService;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -18,6 +19,8 @@ import java.util.List;
 public class SessionInterceptor implements HandlerInterceptor {
     @Autowired
     UserMapper userMapper;
+    @Autowired
+    NotificationService notificationService;
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         Cookie[] cookies = request.getCookies();
@@ -31,6 +34,8 @@ public class SessionInterceptor implements HandlerInterceptor {
                     List<User> users = userMapper.selectByExample(userExample);
                     if (users!=null){
                         request.getSession().setAttribute("user",users.get(0));
+                        Long unreadCount=notificationService.unreadCount(users.get(0).getId());
+                        request.getSession().setAttribute("unreadMessage",unreadCount);
                     }
                     break;
                 }

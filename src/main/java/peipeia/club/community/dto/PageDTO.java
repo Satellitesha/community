@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 @Data
 @Component
-public class PageDTO {
-    private List<QuestionDTO> question;
+public class PageDTO<T> {
+    private List<T> data;
     private boolean showPrevious;
     private  boolean showFirstPage;
     private  boolean showNextPage;

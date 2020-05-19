@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import peipeia.club.community.dto.PageDTO;
 import peipeia.club.community.model.User;
+import peipeia.club.community.service.NotificationService;
 import peipeia.club.community.service.QuestionService;
 import javax.servlet.http.HttpServletRequest;
 
@@ -14,6 +15,8 @@ import javax.servlet.http.HttpServletRequest;
 public class ProfileController {
     @Autowired
     QuestionService questionService;
+    @Autowired
+    NotificationService notificationService;
     @GetMapping("/profile/{action}")
     public  String profile(@PathVariable(name = "action")String action,
                            Model model,
@@ -27,12 +30,15 @@ public class ProfileController {
         if ("questions".equals(action)){
             model.addAttribute("section","questions");
             model.addAttribute("sectionName","我的提问");
+            PageDTO pageDTO = questionService.findQuestionById(user.getId(), page, size);
+            model.addAttribute("pagination",pageDTO);
         }else  if("replies".equals(action)){
+            PageDTO pageDTO=notificationService.List(user.getId(),page,size);
             model.addAttribute("section","replies");
+            model.addAttribute("pagination",pageDTO);
             model.addAttribute("sectionName","最新回复");
         }
-        PageDTO pageDTO = questionService.findQuestionById(user.getId(), page, size);
-        model.addAttribute("pagination",pageDTO);
+
         return "profile";
     }
 }
