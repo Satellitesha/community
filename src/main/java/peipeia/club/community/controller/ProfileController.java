@@ -1,4 +1,5 @@
 package peipeia.club.community.controller;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,6 +13,7 @@ import peipeia.club.community.service.QuestionService;
 import javax.servlet.http.HttpServletRequest;
 
 @Controller
+@Slf4j
 public class ProfileController {
     @Autowired
     QuestionService questionService;
@@ -25,6 +27,7 @@ public class ProfileController {
                            @RequestParam(name="size",defaultValue = "5") Integer size){
         User user = (User) request.getSession().getAttribute("user");
         if (user==null){
+            log.error("profile error {}",user);
             return "redirect:/";
         }
         if ("questions".equals(action)){

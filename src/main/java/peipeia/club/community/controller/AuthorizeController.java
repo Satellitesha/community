@@ -1,5 +1,6 @@
 package peipeia.club.community.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -22,6 +23,7 @@ import java.util.UUID;
 
 
 @Controller
+@Slf4j
 public class AuthorizeController {
     @Value("${MaYun.client.id}")
     private  String clientId;
@@ -59,6 +61,7 @@ public class AuthorizeController {
             return "redirect:/";
         }else {
             //登录重新登录
+            log.error("callback MaYunError {}",githubUser);
             return "redirect:/";
         }
     }
