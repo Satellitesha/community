@@ -26,7 +26,7 @@ function comment2target(targetId, type, content) {
                 if (response.code == 2003) {
                     var isAccepted = confirm(response.message);
                     if (isAccepted) {
-                        window.open("https://github.com/login/oauth/authorize?client_id=2859958f9f059979ed3a&redirect_uri=" + document.location.origin + "/callback&scope=user&state=1");
+                        window.open("https://gitee.com/oauth/authorize?client_id=850082add2c7cbeede6e0c29ad7e6e30396554abe0112be86b6f671ffff36cdd&redirect_uri=http://localhost:8080/callback&response_type=code&&scope=user_info");
                         window.localStorage.setItem("closable", true);
                     }
                 } else {

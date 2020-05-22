@@ -2,6 +2,7 @@ package peipeia.club.community.mapper;
 
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.RowBounds;
+import peipeia.club.community.dto.QuestionQueryDTO;
 import peipeia.club.community.model.Question;
 import peipeia.club.community.model.QuestionExample;
 
@@ -20,4 +21,8 @@ public interface QuestionExtMapper {
     int CommentCount(Question record);
 
     List<Question> selectByRelated(Question question);
+
+    Integer countBySearch(QuestionQueryDTO questionQueryDTO);
+
+    List<Question> selectBySearch(QuestionQueryDTO questionQueryDTO);
 }

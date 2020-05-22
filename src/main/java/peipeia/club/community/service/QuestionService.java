@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import peipeia.club.community.dto.PageDTO;
 import peipeia.club.community.dto.QuestionDTO;
+import peipeia.club.community.dto.QuestionQueryDTO;
 import peipeia.club.community.exception.CustomException;
 import peipeia.club.community.exception.CustomizeErrorCodeImpl;
 import peipeia.club.community.mapper.QuestionExtMapper;
@@ -29,10 +30,17 @@ public class QuestionService {
     UserMapper userMapper;
     @Autowired
     QuestionExtMapper questionExtMapper;
-    public PageDTO findQuestion(Integer page, Integer size) {
+    public PageDTO findQuestion(String search, Integer page, Integer size) {
+        if (StringUtils.isNotBlank(search)) {
+            String[] tags = StringUtils.split(search," ");
+            search = Arrays.stream(tags).collect(Collectors.joining("|"));
+            System.out.println(search);
+        }
         PageDTO pageDTO = new PageDTO();
         Integer totalPage;
-       Integer totalCount = (int)questionMapper.countByExample(new QuestionExample());
+        QuestionQueryDTO questionQueryDTO = new QuestionQueryDTO();
+        questionQueryDTO.setSearch(search);
+        Integer totalCount = questionExtMapper.countBySearch(questionQueryDTO);
 
         if(totalCount % size==0){
             totalPage=totalCount / size;
@@ -51,7 +59,9 @@ public class QuestionService {
         Integer offset=size * (page-1);
         QuestionExample questionExample = new QuestionExample();
         questionExample.setOrderByClause("gmt_create desc");
-        List<Question> questions = questionMapper.selectByExampleWithRowbounds(questionExample, new RowBounds(offset, size));
+        questionQueryDTO.setPage(offset);
+        questionQueryDTO.setSize(size);
+        List<Question> questions = questionExtMapper.selectBySearch(questionQueryDTO);
         List<QuestionDTO> questionDTOList=new ArrayList<>();
         for (Question question : questions) {
           User user=  userMapper.selectByPrimaryKey(question.getCreator());
