@@ -47,7 +47,7 @@
                     </ul>
                 </li>
                 <li th:if=" ${session.user ==null}">
-                    <a href=https://gitee.com/oauth/authorize?client_id=850082add2c7cbeede6e0c29ad7e6e30396554abe0112be86b6f671ffff36cdd&redirect_uri=http://localhost:8080/callback&response_type=code&&scope=user_info>登录</a>
+                    <a th:href="@{https://gitee.com/oauth/authorize(client_id='850082add2c7cbeede6e0c29ad7e6e30396554abe0112be86b6f671ffff36cdd',redirect_uri=${#httpServletRequest.getServletContext().getAttribute('redirectUri')},response_type='code',scope='user_info')}">登录</a>
                 </li>
             </ul>
         </div>
