@@ -50,7 +50,8 @@ public class CustomizeExceptionHandler {
             }
             return new ModelAndView("error");
         }*/
-        model.addAttribute("message", e.getMessage());
+        e.printStackTrace();
+        model.addAttribute("message",e.getMessage());
         return new ModelAndView("error");
     }
 }
