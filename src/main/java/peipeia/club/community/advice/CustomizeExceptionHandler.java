@@ -18,8 +18,8 @@ import java.io.PrintWriter;
 @ControllerAdvice
 public class CustomizeExceptionHandler {
     @ExceptionHandler(Exception.class)
-    Object handle(Throwable e, Model model, HttpServletRequest request, HttpServletResponse response) {
-        String contentType = request.getContentType();
+    ModelAndView handle(Throwable e, Model model, HttpServletRequest request, HttpServletResponse response) {
+        /*String contentType = request.getContentType();
         ResultDTO resultDTO = null;
         if ("application/json".equals(contentType)) {
             //返回json
@@ -29,6 +29,7 @@ public class CustomizeExceptionHandler {
                 resultDTO = (ResultDTO) ResultDTO.errorOf(CustomizeErrorCodeImpl.SYS_ERROR);
             }
             try {
+                e.printStackTrace();
                 response.setContentType("application/json");
                 response.setStatus(200);
                 response.setCharacterEncoding("utf-8");
@@ -48,6 +49,8 @@ public class CustomizeExceptionHandler {
                 model.addAttribute("message", CustomizeErrorCodeImpl.SYS_ERROR);
             }
             return new ModelAndView("error");
-        }
+        }*/
+        model.addAttribute("message", e.getMessage());
+        return new ModelAndView("error");
     }
 }

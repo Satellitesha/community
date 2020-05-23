@@ -64,12 +64,7 @@ public class QuestionService {
         List<Question> questions = questionExtMapper.selectBySearch(questionQueryDTO);
         List<QuestionDTO> questionDTOList=new ArrayList<>();
         for (Question question : questions) {
-            User user=null;
-            try {
-          user=userMapper.selectByPrimaryKey(question.getCreator());
-            }catch (Exception e){
-                e.printStackTrace();
-            }
+          User user=userMapper.selectByPrimaryKey(question.getCreator());
           QuestionDTO questionDTO = new QuestionDTO();
           BeanUtils.copyProperties(question, questionDTO);
           questionDTO.setUser(user);
