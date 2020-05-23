@@ -21,7 +21,7 @@ public class QuestionController {
     CommentService commentService;
     @GetMapping("/question/{id}")
     public String question(@PathVariable(name = "id") Long id,
-                           Model model){
+                           Model model) throws  Exception{
         QuestionDTO questionDTO=questionService.getById(id);
         List<QuestionDTO> relatedQuestions=questionService.selectByRelated(questionDTO);
         List<CommentDTO> comments=commentService.listByTargetId(id, CommentTypeEnum.QUESTION);
