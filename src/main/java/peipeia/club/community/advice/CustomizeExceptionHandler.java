@@ -19,7 +19,7 @@ import java.io.PrintWriter;
 public class CustomizeExceptionHandler {
     @ExceptionHandler(Exception.class)
     ModelAndView handle(Throwable e, Model model, HttpServletRequest request, HttpServletResponse response) {
-        /*String contentType = request.getContentType();
+        String contentType = request.getContentType();
         ResultDTO resultDTO = null;
         if ("application/json".equals(contentType)) {
             //返回json
@@ -49,9 +49,9 @@ public class CustomizeExceptionHandler {
                 model.addAttribute("message", CustomizeErrorCodeImpl.SYS_ERROR);
             }
             return new ModelAndView("error");
-        }*/
-        e.printStackTrace();
-        model.addAttribute("message",e.getMessage());
-        return new ModelAndView("error");
+        }
+//        e.printStackTrace();
+//        model.addAttribute("message",e.getMessage());
+//        return new ModelAndView("error");
     }
 }
